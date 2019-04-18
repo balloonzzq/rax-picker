@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Picker should render Picker 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "attributes": Object {
+        "selected": "selected",
+        "value": "man",
+      },
+      "children": Array [
+        "man",
+      ],
+      "tagName": "OPTION",
+    },
+  ],
+  "eventListeners": Object {
+    "change": [Function],
+  },
+  "style": Object {
+    "display": "flex",
+    "flexDirection": "row",
+    "justifyContent": "center",
+  },
+  "tagName": "SELECT",
+}
+`;

@@ -1,22 +1,29 @@
 import {Component, createElement} from 'rax';
 import {isWeex} from 'universal-env';
-import TouchableHighlight from 'rax-touchable';
+import View from 'rax-view';
 import Text from 'rax-text';
 
-class Picker extends Component {
-  static propTypes = {};
+function Picker(props) {
+  let { children, selectedValue } = props;
+  let style = {
+    ...styles.initial,
+    ...props.style,
+  };
+  let textStyle = {
+    color: style.color,
+    fontSize: style.fontSize,
+    fontStyle: style.fontStyle,
+    fontWeight: style.fontWeight,
+    textAlign: style.textAlign,
+    textDecoration: style.textDecoration,
+    textOverflow: style.textOverflow,
+    lineHeight: style.lineHeight
+  };
 
-  constructor(props) {
-    super(props);
-    let pickerData = this.getPickerData();
-  }
+  const pickerData = getPickerData();
+  const selectedLabel = getPickerLableByValue(selectedValue);
 
-  getPickerData = () => {
-    let {
-      children,
-      selectedValue
-    } = this.props;
-
+  function getPickerData() {
     let pickerItems = [],
       pickerLabelList = [],
       items = [],
@@ -50,14 +57,14 @@ class Picker extends Component {
     };
   }
 
-  getPickerDataByIndex = (index, pickerData) => {
+  function getPickerDataByIndex(index) {
     return {
       value: pickerData.items[index].value,
       label: pickerData.items[index].label,
     };
   }
 
-  getPickerLableByValue = (value, pickerData) => {
+  function getPickerLableByValue(value) {
     let label = '';
     for (let i = 0; i < pickerData.items.length; i++) {
       if (pickerData.items[i].value == value) {
@@ -67,13 +74,10 @@ class Picker extends Component {
     return label;
   }
 
-  handlePress = (webIndex) => {
+  function handleClick(webIndex) {
     const {
-      onValueChange,
-      selectedValue,
-    } = this.props;
-
-    const pickerData = this.getPickerData();
+      onValueChange
+    } = props;
 
     if (isWeex) {
       const picker = __weex_require__('@weex-module/picker');
@@ -83,70 +87,46 @@ class Picker extends Component {
       }, event => {
         if (event.result === 'success') {
           let index = event.data;
-          let {value} = this.getPickerDataByIndex(index, pickerData);
+          let {value} = getPickerDataByIndex(index);
           onValueChange && onValueChange(value, index);
         }
       });
     } else {
-      let {value} = this.getPickerDataByIndex(webIndex, pickerData);
+      let {value} = getPickerDataByIndex(webIndex);
       onValueChange && onValueChange(value, webIndex);
     }
   }
 
-  render() {
-    let {selectedValue} = this.props;
-    const pickerData = this.getPickerData();
-    const selectedLabel = this.getPickerLableByValue(selectedValue, pickerData);
-
-    let style = {
-      ...styles.initial,
-      ...this.props.style,
-    };
-    let textStyle = {
-      color: style.color,
-      fontSize: style.fontSize,
-      fontStyle: style.fontStyle,
-      fontWeight: style.fontWeight,
-      textAlign: style.textAlign,
-      textDecoration: style.textDecoration,
-      textOverflow: style.textOverflow,
-      lineHeight: style.lineHeight
-    };
-
-    if (isWeex) {
-      return (
-        <TouchableHighlight {...this.props} onPress={this.handlePress} style={style}>
-          <Text style={textStyle}>
-            {selectedLabel}
-          </Text>
-        </TouchableHighlight>
-      );
-    } else {
-      const pickerData = this.getPickerData();
-      return (
-        <select style={style} onChange={(e) => {
-          this.handlePress(e.target.options.selectedIndex);
-        }}>
-          {
-            pickerData.items.map((item, index) => {
-              if (index == pickerData.selectIndex) {
-                return <option selected="selected" value={item.value}>{item.label}</option>;
-              } else {
-                return <option value={item.value}>{item.label}</option>;
-              }
-            })
-          }
-        </select>
-      );
-    }
+  if (isWeex) {
+    return (
+      <View {...props} onClick={handleClick} style={style}>
+        <Text style={textStyle}>
+          {selectedLabel}
+        </Text>
+      </View>
+    );
+  } else {
+    return (
+      <select style={style} onChange={(e) => {
+        handleClick(e.target.options.selectedIndex);
+      }}>
+        {
+          pickerData.items.map((item, index) => {
+            if (index == pickerData.selectIndex) {
+              return <option selected="selected" value={item.value}>{item.label}</option>;
+            } else {
+              return <option value={item.value}>{item.label}</option>;
+            }
+          })
+        }
+      </select>
+    );
   }
 }
 
-class Item extends Component {
-  render() {
-    return null;
-  }
-};
+function Item(props) {
+  return null;
+}
 
 Picker.Item = Item;
 
